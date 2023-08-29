@@ -5,7 +5,7 @@
 #include <time.h>
 
 void tempfile(char const fileName[]);
-char *formatdata(char * str , time_t val);
+char *format(char * str , time_t val);
 int main()
 {
 	ssize_t rd;
