@@ -5,7 +5,7 @@
 #include<string.h>
 
 int main() {
-  int a=open("curr.txt", O_RDWR | O_CREAT, 0777);
+  int a=open("curr12.txt", O_RDWR | O_CREAT | O_EXCL, 0777);
 
   if(a == -1) {
     printf("Error %d\n", errno);

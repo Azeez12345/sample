@@ -7,18 +7,17 @@
 int main()
 {
         int a;
-        a = open("temp.txt",O_RDWR | O_CREAT);
+        a = open("temp12.txt",O_RDWR | O_CREAT, 0777);
         if(a == -1)
         {
                 printf("Error!\n");
         }
-        int c;
-	char* buffer=(char*)calloc(100,sizeof(char));
-        read(a,buffer,5);
-	printf("%s\n",buffer);
-	printf("%d\n",SEEK_CUR);
-        int seek = lseek(a,5,SEEK_CUR);
-        read(a,buffer,5);
-	printf("%s\n",buffer);
-        return 0;
+        write(a,"1234567890",10);
+	lseek(a,10,SEEK_CUR);
+	write(a,"abcdefghij",10);
+	int s = lseek(a,0,SEEK_CUR);
+	printf("%d\n",s);
+
+	close(a);
+	return 0;
 }

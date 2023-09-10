@@ -8,7 +8,7 @@ int main() {
   while (true) {
     if(a<5) {
       char buffer[32];
-      snprintf(buffer, sizeof(char) * 32, "fl%i.txt", a);
+      snprintf(buffer, sizeof(char) * 32, "fl%d.txt", a);
       fl = fopen(buffer, "wb");
       fclose(fl);
       a++;

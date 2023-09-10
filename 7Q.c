@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         // Logic
         while(1){
                 char buf;
-                int read_byte = read(fd_read, &buf, 1);
+               int read_byte =  read(fd_read, &buf, 1);
 
                 if(read_byte==0)
                         break;
