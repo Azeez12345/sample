@@ -1,52 +1,64 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<sys/types.h>
-#include<fcntl.h>
-#include<stdlib.h>
-#include<string.h>
 
-struct players{
-  int jersey_no;
-  char name[20];
-  int score;
-};
+#include <sys/types.h> 
+#include <sys/stat.h>  
+#include <fcntl.h>     
+#include <unistd.h>    
+#include <stdio.h>     
+#include "./18Qrec.h" 
 
-int main() {
-  struct flock lock;
-  int fd=open("playerstats.txt", O_CREAT | O_RDWR, 0744);
-  struct players pla1, pla2, pla3;
-  pla1.jersey_no=1;
-  pla2.jersey_no=2;
-  pla3.jersey_no=3;
-  strcpy(pla1.name, "Messi");
-  strcpy(pla2.name, "Ronaldo");
-  strcpy(pla3.name, "Neymar");
-  pla1.score=810;
-  pla2.score=820;
-  pla3.score=500;
-  write(fd, &pla1, sizeof(struct players));
-  lock.l_type=F_WRLCK;
-  lock.l_whence = SEEK_SET;
-  lock.l_start = 8;
-  lock.l_len = 8;
-  lock.l_pid = getpid();
-  fcntl(fd,F_SETLKW , &lock);
-  printf("Entered critical section...\n");
-  printf("Press return to unlock...\n");
-  getchar();
-  printf("Write lock unset...\n");
-  lock.l_type=F_RDLCK;
-  lock.l_start=0;
-  lock.l_len=8;
-  fcntl(fd, F_SETLKW, &lock);
-  printf("Read lock set...\n");
-  lock.l_type=F_UNLCK;
-  lock.l_start=8;
-  lock.l_len=8;
-  fcntl(fd, F_SETLKW, &lock);
-  printf("Press return to exit...\n");
-  getchar();
-  printf("Read lock unset...\n");
-  close(fd);
-  return 0;
+void main()
+{
+    struct flock lock;
+    int fcntlStatus;
+    int fileDescriptor;
+    ssize_t readBytes, writeBytes;
+
+    // Lock entire file
+    lock.l_type = F_WRLCK;
+    lock.l_len = 0;
+    lock.l_start = 0;
+    lock.l_whence = SEEK_SET;
+    lock.l_pid = getpid();
+
+    struct record records[3];
+
+    fileDescriptor = open(filename, O_CREAT | O_RDWR, S_IRWXU);
+
+    if (fileDescriptor == -1)
+        perror("Error while opening the file!");
+    else
+    {
+        fcntlStatus = fcntl(fileDescriptor, F_SETLKW, &lock);
+        if (fcntlStatus == -1)
+            perror("Error while locking file!");
+        else
+        {
+            readBytes = read(fileDescriptor, &records, sizeof(struct record) * 3);
+
+            if (readBytes == -1)
+                perror("Error while reading the file");
+            else
+            {
+                // No contents in the file
+                records[0].recordNumber = 1;
+                records[0].someNumber = 0;
+
+                records[1].recordNumber = 2;
+                records[1].someNumber = 0;
+
+                records[2].recordNumber = 3;
+                records[2].someNumber = 0;
+
+                writeBytes = write(fileDescriptor, &records, sizeof(struct record) * 3);
+
+                if (writeBytes == -1)
+                    perror("Error while writing to file!");
+            }
+            lock.l_type = F_UNLCK;
+            fcntlStatus = fcntl(fileDescriptor, F_SETLKW, &lock);
+
+            if (fcntlStatus == -1)
+                perror("Error while unlocking file!");
+        }
+    }
 }
